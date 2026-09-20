@@ -1,0 +1,6 @@
+{
+  "name": "AgroRetail",
+  "description": "Complete Retailer Ordering & Agricultural Business Management Platform for distributors and retailers.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

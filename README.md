@@ -1,22 +1,40 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://ai.google.dev/static/site-assets/images/share-ais-513315318.png" />
-</div>
+# AgroRetail - Agricultural Business & Retailer Ordering Platform
 
-# Run and deploy your AI Studio app
+Rewritten from Android (Jetpack Compose) to **React 18 + TypeScript + Vite + Tailwind CSS**.
 
-This contains everything you need to run your app locally.
+AgroRetail is an end-to-end B2B agricultural commerce and dealership management platform designed for agricultural distributors (pesticides, fungicides, seeds, fertilizers) and their retailer network.
 
-View your app in AI Studio: https://ai.studio/apps/86da6bbc-196c-47ca-a533-9d398f345d43
+---
 
-## Run Locally
+## 🌟 Key Features Preserved & Enhanced
 
-**Prerequisites:**  [Android Studio](https://developer.android.com/studio)
+### 1. Dual-Persona Architecture
+- **Admin / Distributor Portal**: Comprehensive control center for inventory, order fulfillment, credit limits, schemes, tax invoices, and accounting.
+- **Retailer / Dealer Portal**: Fast mobile-first ordering catalog, real-time inventory levels, scheme banners, cart checkout with delivery notes, order tracking, and account ledger passbook.
+- **Instant Role Switcher**: Quick-switch between Admin and Retailer accounts with mock dealer credentials for rapid testing.
 
+### 2. Full Feature Matrix
+- **Product Master Catalog**: SKU codes, brand/company association, packing/pack sizes, selling & purchase rates, MRP, GST rate selector (0%, 5%, 12%, 18%), HSN codes, barcode tracking, and agricultural image presets.
+- **Order Management & Workflow**: Multi-stage order tracking (`Pending` → `Confirmed` → `Packed` → `Dispatched` → `Delivered`), item totals, dispatch notes (e.g. Transport LR numbers), and automatic retailer push notifications.
+- **Retailer Network Management**: Business profiles, proprietor contacts, GSTIN numbers, credit limit enforcement, market outstandings, 4-digit security PIN authentication, and status toggles.
+- **Excel / Busy Accounting ERP Bulk Import**: 3-step import wizard supporting `.xlsx`, `.xls`, and `.csv`. Features automatic column header detection, duplicate handling (`NEW_AND_UPDATE` vs `NEW_ONLY`), stock mode (`REPLACE` vs `ADD`), sample Busy export generator, and full import history audit log.
+- **Dealer Passbook & Ledger**: Detailed debit (invoices) and credit (payments) transaction history, running ledger balance calculation, manual debit/credit voucher entries, and statement downloads.
+- **Tax Invoices & Billing**: Upload invoice documents, automatic passbook debiting upon bill issuance, and realistic GST tax invoice preview modals.
+- **Promotional Schemes & Banner Carousel**: Launch seasonal offers with valid date ranges, display priorities, and instant broadcast push notifications.
+- **Payment Reminders**: Automated outstanding balance alerts with one-click **WhatsApp Direct Chat** links (`wa.me`) and payment status tracking.
+- **Firm Profile & Bank Credentials**: Complete distributor identity with bank account, IFSC code, and UPI ID for dealer remittances.
 
-1. Open Android Studio
-2. Select **Open** and choose the directory containing this project
-3. Allow Android Studio to fix any incompatibilities as it imports the project.
-4. Create a file named `.env` in the project directory and set `GEMINI_API_KEY` in that file to your Gemini API key (see `.env.example` for an example)
-5. Remove this line from the app's `build.gradle.kts` file: `signingConfig = signingConfigs.getByName("debugConfig")`
-6. Run the app on an emulator or physical device
-7. If you have already published your app in AI Studio, please [request upload key reset](https://support.google.com/googleplay/android-developer/answer/9842756#zippy=%2Crequest-an-upload-key-reset) in Google Play Console.
+---
+
+## 🚀 Running Locally
+
+```bash
+# Install dependencies
+npm install
+
+# Start development server on port 3000
+npm run dev
+
+# Build for production
+npm run build
+```

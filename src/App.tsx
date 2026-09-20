@@ -47,14 +47,14 @@ import {
 
 const AppContent: React.FC = () => {
   const {
-    role,
-    activeAdminTab,
+    role = 'ADMIN',
+    activeAdminTab = 'dashboard',
     setActiveAdminTab,
-    activeRetailerTab,
+    activeRetailerTab = 'home',
     setActiveRetailerTab,
-    orders,
-    cartCount,
-    currentRetailerOrders
+    orders = [],
+    cartCount = 0,
+    currentRetailerOrders = []
   } = useAgro();
 
   // Detail Modal
@@ -66,7 +66,7 @@ const AppContent: React.FC = () => {
   const [openAddProductModal, setOpenAddProductModal] = useState(false);
   const [openUploadBillModal, setOpenUploadBillModal] = useState(false);
 
-  const pendingOrdersCount = orders.filter(o => o.status === 'Pending').length;
+  const pendingOrdersCount = (orders || []).filter(o => o?.status === 'Pending').length;
 
   const adminNavItems = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -85,7 +85,7 @@ const AppContent: React.FC = () => {
   const retailerNavItems = [
     { id: 'home', label: 'Catalog & Deals', icon: Home },
     { id: 'cart', label: 'Cart', icon: ShoppingCart, badge: cartCount > 0 ? cartCount : undefined },
-    { id: 'orders', label: 'My Orders', icon: ShoppingBag, badge: currentRetailerOrders.length },
+    { id: 'orders', label: 'My Orders', icon: ShoppingBag, badge: (currentRetailerOrders || []).length },
     { id: 'bills', label: 'Invoices', icon: Receipt },
     { id: 'passbook', label: 'Ledger', icon: BookOpen },
     { id: 'profile', label: 'Profile', icon: User },
@@ -286,11 +286,65 @@ const AppContent: React.FC = () => {
   );
 };
 
+interface ErrorBoundaryProps {
+  children?: React.ReactNode;
+}
+
+interface ErrorBoundaryState {
+  hasError: boolean;
+  error?: Error;
+}
+
+class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundaryState> {
+  constructor(props: ErrorBoundaryProps) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError(error: Error): ErrorBoundaryState {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+    console.error('App ErrorBoundary caught:', error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="min-h-screen bg-[#F8FAF8] flex items-center justify-center p-6 text-center">
+          <div className="bg-white rounded-2xl p-8 border border-slate-200 shadow-lg max-w-md w-full space-y-4">
+            <div className="w-12 h-12 rounded-full bg-amber-100 text-amber-800 flex items-center justify-center mx-auto font-bold text-lg">
+              !
+            </div>
+            <h2 className="text-lg font-bold text-slate-900 font-display">Something went wrong</h2>
+            <p className="text-xs text-slate-500">
+              {this.state.error?.message || 'An unexpected application state occurred.'}
+            </p>
+            <button
+              onClick={() => {
+                this.setState({ hasError: false });
+                window.location.reload();
+              }}
+              className="px-4 py-2 bg-[#0F5A2F] text-white text-xs font-semibold rounded-xl hover:bg-[#0c4825] transition"
+            >
+              Reload Application
+            </button>
+          </div>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
 export const App: React.FC = () => {
   return (
-    <AgroProvider>
-      <AppContent />
-    </AgroProvider>
+    <ErrorBoundary>
+      <AgroProvider>
+        <AppContent />
+      </AgroProvider>
+    </ErrorBoundary>
   );
 };
 

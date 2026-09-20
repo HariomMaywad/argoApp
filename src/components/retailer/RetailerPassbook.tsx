@@ -13,13 +13,15 @@ import {
 } from 'lucide-react';
 
 export const RetailerPassbook: React.FC = () => {
-  const { currentRetailer, currentRetailerPassbook, distributorProfile } = useAgro();
+  const { currentRetailer, currentRetailerPassbook = [], distributorProfile } = useAgro();
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
 
-  const totalDebit = currentRetailerPassbook.reduce((sum, e) => sum + e.debit, 0);
-  const totalCredit = currentRetailerPassbook.reduce((sum, e) => sum + e.credit, 0);
-  const runningBalance = currentRetailerPassbook.length > 0
-    ? currentRetailerPassbook[currentRetailerPassbook.length - 1].runningBalance
+  const safePassbook = currentRetailerPassbook || [];
+
+  const totalDebit = safePassbook.reduce((sum, e) => sum + e.debit, 0);
+  const totalCredit = safePassbook.reduce((sum, e) => sum + e.credit, 0);
+  const runningBalance = safePassbook.length > 0
+    ? safePassbook[safePassbook.length - 1].runningBalance
     : (currentRetailer?.outstandingAmount || 0);
 
   const handleCopy = (text: string, key: string) => {

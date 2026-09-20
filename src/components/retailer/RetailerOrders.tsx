@@ -21,8 +21,10 @@ interface RetailerOrdersProps {
 }
 
 export const RetailerOrders: React.FC<RetailerOrdersProps> = ({ onOrderAgain }) => {
-  const { currentRetailerOrders, addToCart, products } = useAgro();
+  const { currentRetailerOrders = [], addToCart, products = [] } = useAgro();
   const [expandedOrderId, setExpandedOrderId] = useState<string | null>(null);
+
+  const safeOrders = currentRetailerOrders || [];
 
   const toggleExpand = (id: string) => {
     setExpandedOrderId(prev => prev === id ? null : id);
@@ -30,7 +32,7 @@ export const RetailerOrders: React.FC<RetailerOrdersProps> = ({ onOrderAgain }) 
 
   const handleReorder = (ord: Order) => {
     ord.items.forEach(it => {
-      const prod = products.find(p => p.id === it.productId);
+      const prod = (products || []).find(p => p.id === it.productId);
       if (prod) {
         addToCart(prod, it.quantity);
       }
@@ -47,12 +49,12 @@ export const RetailerOrders: React.FC<RetailerOrdersProps> = ({ onOrderAgain }) 
             My Purchase Orders & Dispatches
           </h1>
           <p className="text-xs text-slate-500">
-            Real-time status tracking, dispatch bilty numbers, and itemized booking records ({currentRetailerOrders.length} orders)
+            Real-time status tracking, dispatch bilty numbers, and itemized booking records ({safeOrders.length} orders)
           </p>
         </div>
       </div>
 
-      {currentRetailerOrders.length === 0 ? (
+      {safeOrders.length === 0 ? (
         <div className="bg-white rounded-2xl p-12 border border-slate-200 shadow-xs text-center max-w-md mx-auto space-y-3">
           <ShoppingBag className="w-12 h-12 text-slate-300 mx-auto" />
           <h3 className="font-bold text-slate-800 text-sm">No Orders Placed Yet</h3>

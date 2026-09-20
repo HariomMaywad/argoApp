@@ -5,8 +5,10 @@ import { formatCurrency, formatDateShort } from '../../utils/presets';
 import { Receipt, Eye, Download, FileText, X } from 'lucide-react';
 
 export const RetailerBills: React.FC = () => {
-  const { currentRetailerBills, currentRetailer, distributorProfile } = useAgro();
+  const { currentRetailerBills = [], currentRetailer, distributorProfile } = useAgro();
   const [selectedBill, setSelectedBill] = useState<Bill | null>(null);
+
+  const safeBills = currentRetailerBills || [];
 
   return (
     <div className="space-y-6">
@@ -17,7 +19,7 @@ export const RetailerBills: React.FC = () => {
             Tax Invoices & Billing Documents
           </h1>
           <p className="text-xs text-slate-500">
-            Download your GST-compliant tax invoices for input tax credit (ITC) and inventory records ({currentRetailerBills.length} invoices)
+            Download your GST-compliant tax invoices for input tax credit (ITC) and inventory records ({safeBills.length} invoices)
           </p>
         </div>
       </div>

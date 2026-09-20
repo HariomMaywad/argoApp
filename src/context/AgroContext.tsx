@@ -34,10 +34,15 @@ import { verifyPin, hashPin } from '../utils/security';
 import { getAutomaticProductPhoto } from '../utils/presets';
 
 interface AgroContextType {
-  // Auth
+  // Auth & Mode Navigation
   currentUser: User | null;
   currentRetailer: Retailer | null;
   userRole: UserRole | null;
+  role: UserRole;
+  activeAdminTab: string;
+  setActiveAdminTab: (tab: string) => void;
+  activeRetailerTab: string;
+  setActiveRetailerTab: (tab: string) => void;
   loginRetailer: (mobile: string, pin: string) => { success: boolean; error?: string };
   loginAdmin: (email: string, pass: string) => { success: boolean; error?: string };
   logout: () => void;
@@ -57,10 +62,17 @@ interface AgroContextType {
   paymentReminders: PaymentReminder[];
   importHistory: ImportHistoryItem[];
 
+  // Retailer scoped data
+  currentRetailerOrders: Order[];
+  currentRetailerBills: Bill[];
+  currentRetailerPassbook: PassbookEntry[];
+  currentRetailerStatements: Statement[];
+
   // Cart
   cart: CartItem[];
   addToCart: (product: Product, quantity?: number) => void;
   updateCartQuantity: (productId: string, quantity: number) => void;
+  updateCartItemQuantity: (productId: string, quantity: number) => void;
   removeFromCart: (productId: string) => void;
   clearCart: () => void;
   cartCount: number;
@@ -69,7 +81,7 @@ interface AgroContextType {
   cartGrandTotal: number;
 
   // Actions
-  placeOrder: (notes?: string) => Promise<{ success: boolean; orderId?: string; error?: string }>;
+  placeOrder: (notes?: string) => { success: boolean; orderId?: string; id?: string; error?: string };
   updateOrderStatus: (orderId: string, status: OrderStatus, adminNotes?: string) => void;
   saveProduct: (product: Partial<Product>) => void;
   toggleProductActive: (productId: string) => void;
@@ -98,6 +110,8 @@ interface AgroContextType {
     fileName: string
   ) => ImportHistoryItem;
   resetDemoData: () => void;
+  resetToDefaults: () => void;
+  changeRetailerPin: (oldPin: string, newPin: string) => boolean;
 }
 
 const AgroContext = createContext<AgroContextType | undefined>(undefined);
@@ -322,7 +336,7 @@ export const AgroProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const cartGrandTotal = cartSubtotal + cartGstTotal;
 
   // Place order
-  const placeOrder = async (notes: string = ''): Promise<{ success: boolean; orderId?: string; error?: string }> => {
+  const placeOrder = (notes: string = ''): { success: boolean; orderId?: string; id?: string; error?: string } => {
     if (!currentRetailer) {
       return { success: false, error: 'Only logged-in retailers can place orders' };
     }
@@ -403,7 +417,7 @@ export const AgroProvider: React.FC<{ children: React.ReactNode }> = ({ children
       orderId
     );
 
-    return { success: true, orderId };
+    return { success: true, orderId, id: orderId };
   };
 
   const updateOrderStatus = (orderId: string, status: OrderStatus, adminNotes: string = '') => {
@@ -903,12 +917,38 @@ export const AgroProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setCart([]);
   };
 
+  const [activeAdminTab, setActiveAdminTab] = useState<string>('dashboard');
+  const [activeRetailerTab, setActiveRetailerTab] = useState<string>('home');
+
+  const effectiveRetailerId = currentRetailer?.id || currentUser?.retailerId || '';
+  const currentRetailerOrders = orders.filter(o => o.retailerId === effectiveRetailerId);
+  const currentRetailerBills = bills.filter(b => b.retailerId === effectiveRetailerId);
+  const currentRetailerPassbook = passbookEntries.filter(p => p.retailerId === effectiveRetailerId);
+  const currentRetailerStatements = statements.filter(s => s.retailerId === effectiveRetailerId);
+
+  const changeRetailerPin = (oldPin: string, newPin: string): boolean => {
+    if (!currentRetailer) return false;
+    if (!verifyPin(oldPin, currentRetailer.pinHash)) {
+      return false;
+    }
+    const newHash = hashPin(newPin);
+    setRetailers(prev =>
+      prev.map(r => (r.id === currentRetailer.id ? { ...r, pinHash: newHash, updatedAt: Date.now() } : r))
+    );
+    return true;
+  };
+
   return (
     <AgroContext.Provider
       value={{
         currentUser,
         currentRetailer,
         userRole: currentUser?.role || null,
+        role: currentUser?.role || 'ADMIN',
+        activeAdminTab,
+        setActiveAdminTab,
+        activeRetailerTab,
+        setActiveRetailerTab,
         loginRetailer,
         loginAdmin,
         logout,
@@ -927,9 +967,15 @@ export const AgroProvider: React.FC<{ children: React.ReactNode }> = ({ children
         paymentReminders,
         importHistory,
 
+        currentRetailerOrders,
+        currentRetailerBills,
+        currentRetailerPassbook,
+        currentRetailerStatements,
+
         cart,
         addToCart,
         updateCartQuantity,
+        updateCartItemQuantity: updateCartQuantity,
         removeFromCart,
         clearCart,
         cartCount,
@@ -960,7 +1006,9 @@ export const AgroProvider: React.FC<{ children: React.ReactNode }> = ({ children
         markAllNotificationsRead,
         updateDistributorProfile,
         executeImport,
-        resetDemoData
+        resetDemoData,
+        resetToDefaults: resetDemoData,
+        changeRetailerPin
       }}
     >
       {children}
